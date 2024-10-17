@@ -57,13 +57,28 @@ selected_hour = st.sidebar.slider("Pilih Jam", min_value=0, max_value=23, value=
 # Filter data berdasarkan pilihan user
 filtered_df = hour_df[(hour_df['bulan'] == selected_month) & (hour_df['jam'] == selected_hour)]
 
-# Tampilan data yang difilter
-st.write("Data yang difilter:")
-st.dataframe(filtered_df)
+# Pertanyaan 1: Pengaruh suhu dan kelembapan terhadap jumlah pengguna sepeda
+st.subheader(f"Pengaruh Suhu dan Kelembapan terhadap Pengguna Sepeda pada Bulan {selected_month} dan Jam {selected_hour}")
+if not filtered_df.empty:
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
+    sns.scatterplot(x='suhu', y='total_pengguna', hue='kelembaban', data=filtered_df, ax=ax1, palette='coolwarm')
+    ax1.set_title('Pengaruh Suhu dan Kelembaban terhadap Jumlah Pengguna Sepeda')
+    ax1.set_xlabel('Suhu')
+    ax1.set_ylabel('Total Pengguna Sepeda')
+    st.pyplot(fig1)
+else:
+    st.write(f"Tidak ada data untuk Bulan {selected_month} dan Jam {selected_hour}.")
 
-# Membuat plot
-st.subheader(f"Distribusi Pengguna Sepeda pada Bulan {selected_month} dan Jam {selected_hour}")
-fig, ax = plt.subplots()
-sns.histplot(filtered_df['total_pengguna'], bins=20, ax=ax)
-ax.set_title('Distribusi Jumlah Pengguna Sepeda')
-st.pyplot(fig)
+# Pertanyaan 2: Perbedaan jumlah pengguna sepeda pada hari kerja dan hari libur/akhir pekan
+st.subheader("Perbandingan Jumlah Pengguna Sepeda: Hari Kerja vs Hari Libur/Akhir Pekan")
+if not hour_df.empty:
+    working_day_df = hour_df.groupby('hari_bekerja')['total_pengguna'].mean().reset_index()
+
+    fig2, ax2 = plt.subplots(figsize=(10, 6))
+    sns.barplot(x='hari_bekerja', y='total_pengguna', data=working_day_df, ax=ax2, palette='viridis')
+    ax2.set_title('Perbandingan Jumlah Pengguna Sepeda antara Hari Kerja dan Hari Libur/Akhir Pekan')
+    ax2.set_xlabel('Hari Bekerja (1 = Hari Kerja, 0 = Libur/Akhir Pekan)')
+    ax2.set_ylabel('Rata-rata Total Pengguna Sepeda')
+    st.pyplot(fig2)
+else:
+    st.write("Tidak ada data yang tersedia untuk hari kerja vs hari libur/akhir pekan.")
